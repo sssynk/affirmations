@@ -160,26 +160,23 @@
                     container.innerHTML = "";
 
                     entries.forEach((entry) => {
-                        if (entry.expand.user) {
-                            const entryDiv = document.createElement("div");
-                            entryDiv.className = "entry";
+                        const entryDiv = document.createElement("div");
+                        entryDiv.className = "entry";
 
-                            const userBadge = document.createElement("div");
-                            userBadge.className = "user-badge";
-                            userBadge.textContent = `Posted by ${entry.expand.user.name}`;
+                        const userBadge = document.createElement("div");
+                        userBadge.className = "user-badge";
 
-                            const text = document.createElement("p");
-                            text.textContent = entry.whattosay;
+                        const text = document.createElement("p");
+                        text.textContent = entry.whattosay;
 
-                            const img = document.createElement("img");
-                            img.className = "screenshot";
-                            img.src = pb.files.getUrl(entry, entry.screenshot);
+                        const img = document.createElement("img");
+                        img.className = "screenshot";
+                        img.src = pb.files.getUrl(entry, entry.screenshot);
 
-                            entryDiv.appendChild(userBadge);
-                            entryDiv.appendChild(text);
-                            entryDiv.appendChild(img);
-                            container.appendChild(entryDiv);
-                        }
+                        entryDiv.appendChild(userBadge);
+                        entryDiv.appendChild(text);
+                        entryDiv.appendChild(img);
+                        container.appendChild(entryDiv);
                     });
                 } catch (error) {
                     alert("Error loading entries: " + error.message);
