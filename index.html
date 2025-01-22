@@ -165,8 +165,9 @@
 
                         const userBadge = document.createElement("div");
                         userBadge.className = "user-badge";
+                        userBadge.textContent = `${entry.expand.user.name || "Anonymous"}`;
 
-                        const text = document.createElement("p");
+                        const text = document.createElement("h2");
                         text.textContent = entry.whattosay;
 
                         const img = document.createElement("img");
