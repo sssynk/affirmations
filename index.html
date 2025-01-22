@@ -153,6 +153,7 @@
                         .collection("messages")
                         .getFullList({
                             expand: "user",
+                            sort: "-created",
                         });
 
                     const container =
