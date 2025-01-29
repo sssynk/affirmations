@@ -51,6 +51,13 @@
                 <input type="email" id="email" placeholder="Email" />
                 <input type="password" id="password" placeholder="Password" />
                 <button onclick="login()">Login</button>
+                    <button onclick="register()">Register</button>
+                </div>
+                <div class="auth-form">
+                    <h1>Link Users</h1>
+                    <input type="text" id="user1Id" placeholder="User 1 ID" />
+                    <input type="text" id="user2Id" placeholder="User 2 ID" />
+                    <button onclick="linkUsers(document.getElementById('user1Id').value, document.getElementById('user2Id').value)">Link Users</button>
             </div>
         </div>
 
@@ -89,11 +96,14 @@
 
             async function register() {
                 try {
+                    // Add a 'connections' field to the user data
+                    // This will be a list of user IDs that the user is connected to
                     await pb.collection("users").create({
                         email: document.getElementById("email").value,
                         password: document.getElementById("password").value,
                         passwordConfirm:
                             document.getElementById("password").value,
+                        connections: [], // Add a connections array, initially empty
                     });
                     await login();
                 } catch (error) {
@@ -104,6 +114,29 @@
             function logout() {
                 pb.authStore.clear();
                 refreshUI();
+            }
+
+            // New function to handle user linking
+            async function linkUsers(userId1, userId2) {
+                try {
+                    // Create a new entry in the 'connections' collection
+                    await pb.collection("connections").create({
+                        user1: userId1,
+                        user2: userId2,
+                    });
+
+                    // Add the connection to each user's 'connections' list
+                    await pb.collection("users").update(userId1, {
+                        connections: [...(await pb.collection("users").getOne(userId1)).connections, userId2]
+                    })
+                    await pb.collection("users").update(userId2, {
+                        connections: [...(await pb.collection("users").getOne(userId2)).connections, userId1]
+                    })
+
+                    alert('Users linked successfully!');
+                } catch (error) {
+                    alert("Failed to link users: " + error.message);
+                }
             }
 
             // UI state management
@@ -135,6 +168,13 @@
                     document.getElementById("textInput").value,
                 );
                 formData.append("user", pb.authStore.model.id);
+                // Add a 'connection' field to the message data
+                // This will store which connection is being referenced in this message
+                // This field will reference a user1-user2 pair in the 'connections' collection
+                const userConnections = (await pb.collection("users").getOne(pb.authStore.model.id)).connections
+                if(userConnections.length > 0){
+                    formData.append("connection", userConnections[0]);
+                }
 
                 try {
                     await pb.collection("messages").create(formData);
@@ -152,7 +192,7 @@
                     const entries = await pb
                         .collection("messages")
                         .getFullList({
-                            expand: "user",
+                            expand: "user, connection",
                             sort: "-created",
                         });
 
